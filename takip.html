@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Bad Made - MVP Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #050505; /* Çerçevenin dışı kapkaranlık */
+            color: #ffffff;
+            margin: 0;
+            padding: 40px; /* Çerçeve için dış boşluk */
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* --- TURKISH MOTIF FRAME --- */
+        .turkish-frame {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            background-color: #121214; /* İçerik zemini */
+            
+            /* Turkuaz ve Altın Geometrik Çerçeve Deseni */
+            border: 15px solid transparent;
+            border-image: repeating-linear-gradient(
+                45deg,
+                #30D5C8, /* Turkuaz */
+                #30D5C8 10px,
+                #1a2a3a 10px,
+                #1a2a3a 15px,
+                #d4af37 15px, /* Altın */
+                #d4af37 20px
+            ) 30;
+            
+            box-shadow: 0 0 30px rgba(48, 213, 200, 0.3); /* Turkuaz ışıltı */
+        }
+
+        /* İçerik Alanı (Desen karışmasın diye içerde temiz alan) */
+        .inner-content {
+            padding: 20px;
+            /* Hafif bir doku ekleyelim */
+            background-image: radial-gradient(#30D5C8 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-color: #121214;
+        }
+
+        /* Köşe Süslemeleri (Corner Motifs) */
+        .corner-motif {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #d4af37;
+            background: #30D5C8;
+            z-index: 10;
+            box-shadow: 0 0 10px #000;
+        }
+        .tl { top: -25px; left: -25px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+        .tr { top: -25px; right: -25px; clip-path: polygon(100% 0, 0 0, 100% 100%); }
+        .bl { bottom: -25px; left: -25px; clip-path: polygon(0 100%, 0 0, 100% 100%); }
+        .br { bottom: -25px; right: -25px; clip-path: polygon(100% 100%, 100% 0, 0 100%); }
+
+
+        /* Header */
+        header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        h1 { 
+            font-size: 3.5em; margin: 0; color: #ff3e3e; 
+            text-transform: uppercase; letter-spacing: 3px; 
+            text-shadow: 4px 4px 0px #000; font-family: 'Impact', sans-serif;
+        }
+        .signature {
+            font-size: 1.5em; color: #30D5C8; /* İmza da Turkuaz oldu */
+            font-weight: bold; margin-top: 5px; 
+            font-family: 'Courier New', monospace; 
+            text-shadow: 0 0 10px rgba(48, 213, 200, 0.6);
+            letter-spacing: 2px;
+        }
+
+        /* Stats Area */
+        .stats-container {
+            background: linear-gradient(180deg, #1e1e24 0%, #151518 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #30D5C8; /* Turkuaz ince çizgi */
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .total-counter {
+            font-size: 1.5em; margin-bottom: 20px; color: #ccc;
+            border-bottom: 1px solid #333; padding-bottom: 10px; display: inline-block;
+        }
+        .total-number { color: #d4af37; font-weight: bold; font-size: 1.3em; }
+
+        /* PODIUM STYLES */
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            min-height: 180px;
+            padding-bottom: 10px;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            background: #2a2a35;
+            border-radius: 10px 10px 0 0;
+            padding: 10px;
+            width: 120px;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .podium-item img {
+            width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px;
+        }
+        .podium-name { font-size: 0.9em; font-weight: bold; margin-bottom: 2px; }
+        .podium-count { font-size: 1.4em; font-weight: bold; }
+
+        /* RANK 1 (GOLD) */
+        .rank-1 {
+            height: 170px;
+            background: linear-gradient(to top, #ffd70033, #2a2a35);
+            border: 2px solid #ffd700;
+            order: 2; z-index: 10; transform: scale(1.1);
+        }
+        .rank-1 .podium-count { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .crown { position: absolute; top: -25px; font-size: 2em; }
+
+        /* RANK 2 (SILVER) */
+        .rank-2 {
+            height: 130px;
+            background: linear-gradient(to top, #c0c0c033, #2a2a35);
+            border: 2px solid #c0c0c0;
+            order: 1;
+        }
+        .rank-2 .podium-count { color: #c0c0c0; }
+
+        /* RANK 3 (BRONZE) */
+        .rank-3 {
+            height: 100px;
+            background: linear-gradient(to top, #cd7f3233, #2a2a35);
+            border: 2px solid #cd7f32;
+            order: 3;
+        }
+        .rank-3 .podium-count { color: #cd7f32; }
+
+
+        /* Grid Area */
+        .grid-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;
+        }
+        .card {
+            background-color: #23232a; border-radius: 4px; padding: 10px;
+            text-align: center; cursor: pointer; border: 1px solid #333;
+            transition: all 0.2s; user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Kartlara hafif turkuaz hover efekti */
+        .card:hover { 
+            transform: translateY(-3px); 
+            background-color: #2f2f38; 
+            border-color: #30D5C8; 
+            box-shadow: 0 0 10px rgba(48, 213, 200, 0.2);
+        }
+        .card:active { transform: scale(0.96); }
+        .card img { max-width: 100%; height: 80px; object-fit: contain; margin-bottom: 5px; }
+        .mvp-name { font-size: 0.8em; color: #aaa; }
+        .counter { font-size: 1.2em; font-weight: bold; color: #4cd137; }
+
+        /* Controls */
+        .controls { margin-top: 40px; text-align: center; margin-bottom: 20px; }
+        button.reset-btn {
+            background-color: #c23616; color: white; border: none; padding: 10px 20px;
+            border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase;
+        }
+        .hint { margin-top: 10px; font-size: 0.8em; color: #555; }
+
+    </style>
+</head>
+<body>
+
+    <div class="turkish-frame">
+        <div class="corner-motif tl"></div>
+        <div class="corner-motif tr"></div>
+        <div class="corner-motif bl"></div>
+        <div class="corner-motif br"></div>
+
+        <div class="inner-content">
+            <header>
+                <h1>We Bad Made</h1>
+                <div class="signature">PrensCin!</div>
+            </header>
+
+            <div class="stats-container">
+                <div class="total-counter">Total Summoned: <span class="total-number" id="totalSum">0</span></div>
+                
+                <div class="podium-container" id="podiumList">
+                    Waiting for clicks...
+                </div>
+            </div>
+
+            <div class="grid-container" id="gridContainer">
+                </div>
+
+            <div class="controls">
+                <button class="reset-btn" onclick="resetData()">⚠️ Reset All Data</button>
+                <div class="hint">Left Click: +1 | Right Click: -1</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const mvpList = [
+            { file: "Amon Ra.gif", name: "Amon Ra" }, { file: "Atroce.gif", name: "Atroce" },
+            { file: "Baphomet.gif", name: "Baphomet" }, { file: "Beelzebub.gif", name: "Beelzebub" },
+            { file: "Dark Lord.gif", name: "Dark Lord" }, { file: "Detale.gif", name: "Detale" },
+            { file: "DOPPELGANGER.gif", name: "Doppelganger" }, { file: "DRACULA.gif", name: "Dracula" },
+            { file: "DRAKE.gif", name: "Drake" }, { file: "Eddga.gif", name: "Eddga" },
+            { file: "Evil Snake Lord.gif", name: "Evil Snake Lord" }, { file: "Fallen Bishop Hibram.gif", name: "Fallen Bishop" },
+            { file: "Gloom Under Night.gif", name: "Gloom" }, { file: "Golden Thief Bug.gif", name: "GTB" },
+            { file: "Hatii.gif", name: "Hatii" }, { file: "Ifrit.gif", name: "Ifrit" },
+            { file: "Incantation Samurai.gif", name: "Samurai" }, { file: "Kiel-D-01.gif", name: "Kiel-D-01" },
+            { file: "Ktullanux.gif", name: "Ktullanux" }, { file: "Lady Tanee.gif", name: "Lady Tanee" },
+            { file: "Lord of the Dead.gif", name: "LOD" }, { file: "Maya.gif", name: "Maya" },
+            { file: "Mistress.gif", name: "Mistress" }, { file: "Moonlight Flower.gif", name: "Moonlight" },
+            { file: "Orc Hero.gif", name: "Orc Hero" }, { file: "Orc Lord.gif", name: "Orc Lord" },
+            { file: "Osiris.gif", name: "Osiris" }, { file: "Pharaoh.gif", name: "Pharaoh" },
+            { file: "Phreeoni.gif", name: "Phreeoni" }, { file: "RSX-0806.gif", name: "RSX-0806" },
+            { file: "Stormy Knight.gif", name: "Stormy" }, { file: "Turtle General.gif", name: "Turtle Gen" },
+            { file: "Valkyrie Randgris.gif", name: "Randgris" }, { file: "White Lady.gif", name: "White Lady" }
+        ];
+
+        let counts = JSON.parse(localStorage.getItem('bbStats_v2')) || {};
+
+        function init() {
+            const grid = document.getElementById('gridContainer');
+            grid.innerHTML = "";
+            mvpList.forEach(mvp => {
+                if (!counts[mvp.name]) counts[mvp.name] = 0;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => increment(mvp.name);
+                card.oncontextmenu = (e) => { e.preventDefault(); decrement(mvp.name); };
+                card.innerHTML = `
+                    <img src="${mvp.file}" alt="${mvp.name}">
+                    <div class="mvp-name">${mvp.name}</div>
+                    <div class="counter" id="count-${mvp.name}">${counts[mvp.name]}</div>
+                `;
+                grid.appendChild(card);
+            });
+            updateStats();
+        }
+
+        function increment(name) { counts[name]++; saveAndRefresh(name); }
+        function decrement(name) { if(counts[name]>0) { counts[name]--; saveAndRefresh(name); } }
+        function saveAndRefresh(name) {
+            localStorage.setItem('bbStats_v2', JSON.stringify(counts));
+            document.getElementById(`count-${name}`).innerText = counts[name];
+            updateStats();
+        }
+
+        function updateStats() {
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const podiumEl = document.getElementById('podiumList');
+            let totalSum = 0; for(let key in counts) totalSum += counts[key];
+            document.getElementById('totalSum').innerText = totalSum;
+
+            if (sorted[0][1] === 0) {
+                podiumEl.innerHTML = "<span style='color:#666; align-self:center;'>Click MVPs to start the race!</span>";
+                return;
+            }
+
+            let html = "";
+            if (sorted.length > 1 && sorted[1][1] > 0) html += createPodiumItem(sorted[1], 2);
+            if (sorted.length > 0 && sorted[0][1] > 0) html += createPodiumItem(sorted[0], 1);
+            if (sorted.length > 2 && sorted[2][1] > 0) html += createPodiumItem(sorted[2], 3);
+            podiumEl.innerHTML = html;
+        }
+
+        function createPodiumItem(data, rank) {
+            const mvpObj = mvpList.find(m => m.name === data[0]);
+            const imgSrc = mvpObj ? mvpObj.file : "";
+            const crownHtml = rank === 1 ? '<div class="crown">👑</div>' : '';
+            return `
+                <div class="podium-item rank-${rank}">
+                    ${crownHtml}
+                    <img src="${imgSrc}">
+                    <div class="podium-name">${data[0]}</div>
+                    <div class="podium-count">${data[1]}</div>
+                </div>
+            `;
+        }
+
+        function resetData() {
+            if(confirm("Reset all statistics?")) {
+                counts = {};
+                mvpList.forEach(m => counts[m.name] = 0);
+                localStorage.setItem('bbStats_v2', JSON.stringify(counts));
+                init();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
